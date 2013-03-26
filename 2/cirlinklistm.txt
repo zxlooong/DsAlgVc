@@ -1,0 +1,349 @@
+//单循环链表的类定义cirlinklist.h
+#define LEN 20
+typedef int ElemType;
+//单循环链表中结点的类型
+typedef struct Lnode {
+ ElemType data;   //值域
+ Lnode* next;     //指针域
+}LNode;
+class cirlinklist
+{private:
+  LNode *head;//指向表头的指针
+  LNode *curr;//当前结点指针
+  int count;// 单循环链表的结点个数
+ public:
+//构造函数
+  cirlinklist();
+//析构函数
+  ~cirlinklist(){delete head;}
+//创建有序或无序的带头结点的单循环链表
+  LNode *CreateCLinkL(int,int mark=0);
+//清空单循环链表
+  void ClearCList();
+//求单循环链表长度
+  int CListSize();
+//检查单循环链表是否为空
+  bool CListEmpty();
+//返回指向第pos个结点的指针
+  LNode *Index(int pos);
+//返回单循环链表中指定序号的结点值
+  ElemType GetElem(int pos);
+//遍历单循环链表
+  LNode *TraverseCList();
+//当前指针curr指向pos结点并返回curr
+  LNode *Reset(int pos=0);
+//当前指针curr指向下一结点并返回
+  LNode *Next();
+// 判单循环链表当前指针curr==head 否
+  bool EndOCList();
+//判单循环链表当前指针curr->next是否到达表尾
+  bool EndCList();
+//删除单循环链表当前指针curr->next所指结点并返回其值
+  ElemType DeleteNext();
+//从单循环链表中查找元素
+  bool FindCList(ElemType& item);
+//更新单循环链表中的给定元素
+  bool UpdateCList(const ElemType &item,ElemType &e);
+//向链表中第pos个结点后插入域值为item的新结点
+  void InsertCList(const ElemType& item,int pos);
+//从链表中删除第pos个结点并返回被删结点的data
+  ElemType DeleteCList(int pos);
+};
+//单循环链表的实现cirlinklist.cpp
+#include<iostream.h>
+#include<stdlib.h>
+#include"cirlinklist.h"
+//构造函数
+cirlinklist::cirlinklist()
+{head=new LNode;
+ curr=NULL;
+ head->next=head;
+ count=0;
+}
+//创建有序或无序的带头结点的单循环链表
+LNode *cirlinklist::CreateCLinkL(int n,int mark)
+{ElemType x,a[LEN];
+ for(int i=0;i<n;i++) a[i]=random(150+i)%100;
+ for(int i=0;i<n-1;i++)
+  {int k=i;
+   for(int j=i+1;j<n;j++)
+    if(a[k]>a[j]) k=j;
+   if(k!=i)
+   {x=a[k];a[k]=a[i];a[i]=x;}}
+ head=new LNode;
+ head->next=curr=new LNode;
+ for(int i=0;i<n;i++){
+  if(mark==1) curr->data=a[i];//升序
+  else
+   if(mark==-1) curr->data=a[n-1-i];//降序
+   else curr->data=rand()%100;//无序
+  if(i<n-1){curr->next=new LNode;
+   curr=curr->next;}
+  count++;}
+ curr->next=head;
+ return head;
+}
+//清空单循环链表
+void cirlinklist::ClearCList()
+{LNode *cp,*np;
+ cp=head->next;
+ while(cp!=head)
+ {np=cp->next;delete cp;cp=np;}
+ head=NULL;
+}
+//求单循环链表长度
+int cirlinklist::CListSize()
+{LNode* p=head->next;
+ int i=0;
+ while(p!=head)
+  {i++;p=p->next;}
+ return i;
+}
+//检查单循环链表是否为空
+bool cirlinklist::CListEmpty()
+{return head->next==head;}
+//返回指向第pos个结点的指针
+LNode *cirlinklist::Index(int pos)
+{if(pos<1)
+  {cerr<<"pos is out range!"<<endl;exit(1);}
+ LNode* p=head->next;
+ int i=0;
+ while(p!=head)
+  {i++;
+   if(i==pos) break;
+   p=p->next;}
+ if(p!=head) return p;
+ else {cerr<<"pos is out range!"<<endl;
+  return NULL;}
+}
+//返回单循环链表中指定序号的结点值
+ElemType cirlinklist::GetElem(int pos)
+{if(pos<1)
+ {cerr<<"pos is out range!"<<endl;exit(1);}
+ LNode* p=head->next;
+ int i=0;
+ while(p!=head)
+  {i++;
+   if(i==pos) break;
+   p=p->next;}
+ if(p!=head) return p->data;
+ else {cerr<<"pos is out range!"<<endl;
+  return pos;}
+}
+//遍历单循环链表
+LNode *cirlinklist::TraverseCList()
+{LNode *p=head->next;
+ while(p!=head)
+  {cout<<setw(4)<<p->data;
+   p=p->next;}
+ cout<<endl;
+ return head;
+}
+//当前指针curr指向pos结点并返回curr
+LNode *cirlinklist::Reset(int pos)
+{LNode* p=curr=head->next;
+ int i=-1;
+ while(p!=head)
+  {i++;
+   if(i==pos) break;
+   p=p->next;curr=curr->next;}
+ return curr;
+}
+//当前指针curr指向下一结点并返回
+LNode *cirlinklist::Next()
+{curr=curr->next;
+ return curr; 
+}
+// 判单循环链表当前指针curr==head 否
+bool cirlinklist::EndOCList()
+{return curr==head;}
+//判单循环链表当前指针curr->next是否到达表尾
+bool cirlinklist::EndCList()
+{return curr->next==head;}
+//删除单循环链表当前指针curr->next所指结点并返回其值
+ElemType cirlinklist::DeleteNext()
+{LNode *p=curr->next;
+ curr->next=p->next;
+ ElemType data=p->data;
+ delete p;
+ count--;
+ return data;
+}
+//从单循环链表中查找元素
+bool cirlinklist::FindCList(ElemType& item)
+{LNode* p=head->next;
+ while(p!=head)
+  if(p->data==item)
+   {item=p->data;return true;}
+  else p=p->next;
+ return false;
+}
+//更新单循环链表中的给定元素
+bool cirlinklist::UpdateCList(const ElemType &item,ElemType &e)
+{LNode* p=head->next;
+ while(p!=head)  //查找元素
+  if(p->data==item) break;
+  else p=p->next;
+ if(p==head) return false;
+ else {  //更新元素
+  p->data=e;return true;}
+}
+//向链表中第pos个结点后插入域值为item的新结点
+void cirlinklist::InsertCList(const ElemType& item,int pos)
+{LNode *newP=new LNode;
+ newP->data=item;
+ LNode* p=head->next;
+ int i=0;
+ while(p!=head)
+  {i++;
+   if(i==pos) break;
+   p=p->next;}
+ newP->next=p->next;
+ p->next=newP;count++;
+}
+//从链表中删除第pos个结点并返回被删结点的data
+ElemType cirlinklist::DeleteCList(int pos)
+{if(pos<1)
+  {cerr<<"pos is out range!"<<endl;exit(1);}
+ LNode *p=head->next;
+ curr=head;
+ ElemType data;
+ int i=0;
+ while(p!=head)
+  {i++;
+   if(i==pos) break;
+   p=p->next;curr=curr->next;}
+ if(p!=head)
+  {data=p->data;curr->next=p->next;
+   delete []p;count--;return data;}
+ else return pos;  
+}
+//单循环链表的测试与应用cirlinklistm.cpp
+#include<iomanip.h>
+#include "cirlinklist.cpp"
+void main()
+{cout<<"cirlinklistm.cpp运行结果:\n";
+ int m,i,n=10,x,it;
+ bool f;
+ cirlinklist p,t,q,mylink;
+ p.CreateCLinkL(n,1);
+ if(p.CListEmpty()) cout<<"单循环链表p空!\n";
+ else cout<<"单循环链表p非空!\n";
+ cout<<"单循环链表p(升序):\n";
+ p.TraverseCList();
+ if(p.CListEmpty()) cout<<"单循环链表p空!\n";
+ else cout<<"单循环链表p非空!\n";
+ if(p.EndCList()) cout<<"单循环链表p满!\n";
+ else cout<<"单循环链表p非满!\n";
+ cout<<"单循环链表t(无序):\n";
+ t.CreateCLinkL(n-2);
+ t.TraverseCList();
+ cout<<"单循环链表t的长度:"<<t.CListSize()<<endl;
+ cout<<"单循环链表q(降序):\n";
+ q.CreateCLinkL(n,-1);
+ q.TraverseCList();
+ cout<<"单循环链表q的长度:"<<q.CListSize()<<endl;
+ cout<<"链表q的第1个元素:"<<q.GetElem(1)<<endl;
+ cout<<"链表q的第1个元素地址:"<<q.Index(1)<<endl;
+ cout<<"链表q的第5个元素:"<<q.GetElem(5)<<endl;
+ cout<<"链表q的第5个元素地址:"<<q.Index(5)<<endl;
+ cout<<"链表q的第10个元素:"<<q.GetElem(10)<<endl;
+ cout<<"链表q的第10个元素地址:"<<q.Index(10)<<endl;
+ cout<<"链表q的curr->next所指元素地址:"<<q.Next()<<endl;
+ x=65;it=66;
+ if(q.FindCList(x)) cout<<x<<"查找成功!\n";
+ else cout<<x<<"查找不成功!\n";
+ if(q.UpdateCList(x,it)) cout<<x<<"更新成功!\n";
+ else cout<<x<<"更新不成功!\n";
+ cout<<"更新后单循环链表q:\n";
+ q.TraverseCList();
+ cout<<"插入后单循环链表q:\n";
+ it=100;q.InsertCList(it,1);
+ q.TraverseCList();
+ cout<<"插入后单循环链表q:\n";
+ it=101;q.InsertCList(it,5);
+ q.TraverseCList();
+ cout<<"插入后单循环链表q:\n";
+ it=102;q.InsertCList(it,12);
+ q.TraverseCList();
+ cout<<"插入后q表长:"<<q.CListSize()<<endl;
+ cout<<"第1个数:"<<q.DeleteCList(1)<<"删除成功!\n";
+ cout<<"删除后q表长:"<<q.CListSize()<<endl;
+ q.TraverseCList();
+ cout<<"第5个数:"<<q.DeleteCList(5)<<"删除成功!\n";
+ cout<<"删除后q表长:"<<q.CListSize()<<endl;
+ q.TraverseCList();
+ cout<<"第11个数:"<<q.DeleteCList(11)<<"删除成功!\n";
+ cout<<"删除后q表长:"<<q.CListSize()<<endl;
+ q.TraverseCList();
+ //求解约瑟夫(Josephus)问题
+ cout<<"输入人数n:";cin>>n;
+ cout<<"输入第次数m:";cin>>m;
+ for(i=0;i<n;i++) mylink.InsertCList(i+1,i);
+ cout<<"员工编号依次为:";
+ LNode *w=mylink.Reset();
+ while(!mylink.EndOCList())
+  {cout<<setw(3)<<w->data;
+   w=mylink.Next();}
+ cout<<endl;
+ cout<<"删除次序依次为:\n";
+ mylink.Reset(-1);
+ for(i=0;i<n-1;i++)
+ {for(int j=0;j<m-1;j++)
+  {w=mylink.Next();
+   if(mylink.EndOCList()) w=mylink.Next();}
+  if(mylink.EndCList()) w=mylink.Next();
+  cout<<"删除第"<<mylink.DeleteNext()<<"人\n";}
+ cout<<"最后剩下的是:第"<<mylink.GetElem(1)<<"个人\n";
+ cin.get();cin.get();}
+cirlinklistm.cpp运行结果:
+单循环链表p非空!
+单循环链表p(升序):
+   2   8  10  10  28  28  47  49  63  66
+单循环链表p非空!
+单循环链表p满!
+单循环链表t(无序):
+  45  89  87  64  19  68  55  46
+单循环链表t的长度:8
+单循环链表q(降序):
+  93  51  47  46  43  41  35  32  31  13
+单循环链表q的长度:10
+链表q的第1个元素:93
+链表q的第1个元素地址:12604252
+链表q的第5个元素:43
+链表q的第5个元素地址:12604316
+链表q的第10个元素:13
+链表q的第10个元素地址:12604396
+链表q的curr->next所指元素地址:12604236
+65查找不成功!
+65更新不成功!
+更新后单循环链表q:
+  93  51  47  46  43  41  35  32  31  13
+插入后单循环链表q:
+  93 100  51  47  46  43  41  35  32  31  13
+插入后单循环链表q:
+  93 100  51  47  46 101  43  41  35  32  31  13
+插入后单循环链表q:
+  93 100  51  47  46 101  43  41  35  32  31  13 102
+插入后q表长:13
+第1个数:93删除成功!
+删除后q表长:12
+ 100  51  47  46 101  43  41  35  32  31  13 102
+第5个数:101删除成功!
+删除后q表长:11
+ 100  51  47  46  43  41  35  32  31  13 102
+第11个数:102删除成功!
+删除后q表长:10
+ 100  51  47  46  43  41  35  32  31  13
+输入人数n:8
+输入第次数m:3
+员工编号依次为:  1  2  3  4  5  6  7  8
+删除次序依次为:
+删除第3人
+删除第6人
+删除第1人
+删除第5人
+删除第2人
+删除第8人
+删除第4人
+最后剩下的是:第7个人

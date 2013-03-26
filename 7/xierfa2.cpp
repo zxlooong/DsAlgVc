@@ -1,0 +1,42 @@
+//希尔排序法xierfa2.cpp
+#include<iostream.h>
+#include<iomanip.h>
+#define MAXI 11
+typedef int KeyType;
+typedef int ElemType;
+struct rec {
+ KeyType key;ElemType data;};
+typedef rec sqlist[MAXI];
+void shellsort(sqlist b,int n)
+{int i,j,gap,k;rec x;
+ gap=n/2;
+ while(gap>0)
+ {for(i=gap+1;i<n;i++)
+  {j=i-gap;
+   while(j>0)
+   if(b[j].key>b[j+gap].key)
+   {x=b[j];b[j]=b[j+gap];
+    b[j+gap]=x;j=j-gap;}
+   else j=0;
+   for(k=1;k<n;k++)
+    cout<<setw(4)<<b[k].key;
+   cout<<endl;}
+   gap=gap/2;}
+}
+void main()
+{cout<<"xierfa2.cpp运行结果:\n";
+ sqlist a;int i,n=MAXI;
+ for(i=1;i<n;i++)
+  {a[i].key=random(89+i)%80;
+   a[i].data=random(101+i)%100;}
+ cout<<"排序前数组:\n";
+ for(int i=1;i<n;i++)
+  cout<<setw(4)<<a[i].key;
+ cout<<endl;
+ cout<<"数组排序过程演示:\n";
+ shellsort(a,n);
+ cout<<"排序后数组:\n";
+ for(int i=1;i<n;i++)
+  cout<<setw(4)<<a[i].key;
+ cout<<endl;cin.get();}
+

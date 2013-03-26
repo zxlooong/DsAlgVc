@@ -1,0 +1,276 @@
+//二叉树类定义btree2.h
+//定义二叉树结点类型
+template<class T>class BinaryTree;
+template<class T> struct BTreeNode {
+ private:
+  BTreeNode<T> *left;//左子树指针
+  BTreeNode<T> *right;//右子树指针
+ public:
+  T data;//数据域
+  //构造函数
+  BTreeNode():left(NULL),right(NULL) { }
+  BTreeNode(T item,BTreeNode<T> *left1=NULL,
+    BTreeNode<T> *right1=NULL):data(item),
+    left(left1),right(right1){ }
+  BTreeNode<T> *&Left(){return left;}
+  BTreeNode<T> *&Right(){return right;}
+  friend class BinaryTree<T>;
+};
+//二叉树类定义
+template<class T>class BinaryTree {
+ private:
+  BTreeNode<T> *root;
+ public:
+//构造函数,初始化二叉树为空
+  BinaryTree() {root=NULL;}
+//根据字符数组a的二叉树广义表建立对应的二叉树存储结构
+  void CreateBTree(char* a);
+//判断二叉树是否为空
+  bool BTreeEmpty() {return root==NULL;}
+//按任一种遍历次序输出二叉树中的所有结点
+  void TraverseBTree(int mark);
+//用于遍历的递归函数
+  void Traverse(BTreeNode<T> *&BT,int mark);
+//求二叉树的深度
+  int BTreeDepth();
+//用于求二叉树深度的递归函数
+  int Depth(BTreeNode<T> *&BT);
+//求二叉树中所有结点数
+  int BTreeCount();
+//用于求二叉树中所有结点数的递归函数
+  int Count(BTreeNode<T> *&BT);
+//求二叉树中所有叶子结点数
+  int BTreeLeafCount();
+//用于求二叉树中所有叶子结点数的递归函数
+  int LeafCount(BTreeNode<T> *&BT);
+//按照二叉树的一种表示方法输出整个二叉树
+  void PrintBTree();
+//用于输出整个二叉树的递归函数
+  void Print(BTreeNode<T> *&BT);
+//用于清除二叉树的递归函数
+  void Clear(BTreeNode<T> *&BT);
+//析构函数，清除二叉树
+  ~BinaryTree();
+};
+//二叉树类的实现btree2.cpp
+//根据字符数组a的二叉树广义表建立对应的二叉树存储结构
+template<class T>
+void BinaryTree<T>::CreateBTree(char *a)
+{BTreeNode<T> *s[80];//s数组作为存储二叉树中根结点指针的栈
+ int top=-1;      //top作为s栈的栈顶指针
+ root=NULL;       //给树根指针置空
+ BTreeNode<T> *p=NULL;//定义p为指向二叉树结点的指针
+ //用k作为处理结点的左子树和右子树的标记,k=1处理左子树,k=2处理右子树
+ int k;
+ istrstream ins(a);//把字符串a定义为输入字符串流对象ins
+ char ch;
+ ins>>ch;//从ins流对象顺序读入一个字符，
+ while (ch!='@')
+ {//每循环一次处理一个读入的字符,直到扫描到'@'字符为止
+  switch(ch)
+    {case '(':top++;s[top]=p;k=1;break;
+     case ')':top--;break;
+     case ',':top++;k=2;break;
+     default:p=new BTreeNode<T>;
+       p->data=ch;p->left=p->right=NULL;
+       cout<<setw(2)<<p->data;
+       if(root==NULL) root=p;
+       else {
+	if(k==1) s[top]->left=p;
+        else s[top]->right=p;}
+    }
+  ins>>ch;
+ }
+}
+//按任一种遍历次序输出二叉树中的所有结点
+template<class T>
+void BinaryTree<T>::TraverseBTree(int mark)
+{Traverse(root,mark);}
+
+//用于遍历的递归函数
+template<class T>
+void BinaryTree<T>::Traverse(BTreeNode<T> *&BT,int mark)
+{if(mark==1){ //先序遍历
+  if(BT!=NULL)
+   {cout<<BT->data<<' ';
+    Traverse(BT->left,mark);
+    Traverse(BT->right,mark);
+   }}
+ else
+  if(mark==2)//中序遍历
+   {if(BT!=NULL)
+     {Traverse(BT->left,mark);
+      cout<<BT->data<<' ';
+      Traverse(BT->right,mark);
+    }}
+  else
+   if(mark==3) {//后序遍历
+     if(BT!=NULL) {
+      Traverse(BT->left,mark);
+      Traverse(BT->right,mark);
+      cout<<BT->data<<' ';
+    }}
+  else
+   if(mark==4) //按层遍历
+    {const MaxLength=80;
+     BTreeNode<T> *Q[MaxLength];
+    //定义存储二叉树结点指针的数组空间作为队列使用
+     int front=0, rear=0;
+    //定义队首指针和队尾指针,初始均置0表示空队
+    BTreeNode<T> *p;
+    if(BT!=NULL) {
+     rear=(rear+1)%MaxLength;  //后移队尾指针
+     Q[rear]=BT;}              //将树根结点指针进队
+    while(front!=rear)
+     {//当队列非空时执行循环
+      front=(front+1)%MaxLength;
+      //后移队首指针
+      p=Q[front];
+      //删除队首结点
+      cout<<p->data<<' ';
+      //输出队首结点的值
+      if(p->left!=NULL)
+       {//若结点存在左孩子，则左孩子结点指针进队
+	rear=(rear+1)%MaxLength;
+        Q[rear]=p->left;
+       }
+      if(p->right!=NULL)
+       {//若结点存在右孩子,则右孩子结点指针进队
+	rear=(rear+1)%MaxLength;
+	Q[rear]=p->right;
+       }
+      }
+     }
+   else
+    {cerr<<"mark的值无效!遍历失败!"<<endl;exit(1);
+}}
+//求二叉树的深度
+template<class T>
+int BinaryTree<T>::BTreeDepth()
+{return Depth(root);}
+
+//用于求二叉树深度的递归函数
+template<class T>
+int BinaryTree<T>::Depth(BTreeNode<T> *&BT)
+{if(BT==NULL) return 0;//对于空树,返回0并结束递归
+ else
+   {//计算左子树的深度
+    int dep1=Depth(BT->left);
+    //计算右子树的深度
+    int dep2=Depth(BT->right);
+    //返回树的深度
+    if(dep1>dep2) return dep1+1;
+    else return dep2+1;
+   }
+}
+//求二叉树中所有结点数
+template<class T>
+int BinaryTree<T>::BTreeCount()
+{return Count(root);}
+
+//用于求二叉树中所有结点数的递归函数
+template<class T>
+int BinaryTree<T>::Count(BTreeNode<T> *&BT)
+{if(BT==NULL) return 0;
+ else
+  return Count(BT->left)+Count(BT->right)+1;
+}
+//求二叉树中所有叶子结点数
+template<class T>
+int BinaryTree<T>::BTreeLeafCount()
+{return LeafCount(root);}
+
+//用于求二叉树中所有叶子结点数的递归函数
+template<class T>
+int BinaryTree<T>::LeafCount(BTreeNode<T> *&BT)
+{if(BT==NULL) return 0;
+ else if(BT->left==NULL && BT->right==NULL) return 1;
+  else return LeafCount(BT->left)+LeafCount(BT->right);
+}
+//按照二叉树的广义表表示输出整个二叉树
+template<class T>
+void BinaryTree<T>::PrintBTree()
+{Print(root);}
+
+//用于输出整个二叉树的递归函数
+template<class T>
+void BinaryTree<T>::Print(BTreeNode<T> *&BT)
+{if(BT==NULL) return;//树为空时返回
+ else {//否则执行如下操作
+  cout<<BT->data;//输出根结点的值
+  if(BT->left!=NULL || BT->right!=NULL)
+   {cout<<'(';  //输出左括号
+    Print(BT->left);//输出左子树
+    if(BT->right!=NULL)
+     cout<<',';//若右子树不为空则输出逗号分隔符
+    Print(BT->right);//输出右子树
+    cout<<')';} //输出右括号
+}}
+//析构函数,清除二叉树
+template<class T>
+BinaryTree<T>::~BinaryTree()
+{Clear(root);}
+//用于清除二叉树的递归函数
+template<class T>
+void BinaryTree<T>::Clear(BTreeNode<T> *&BT)
+{if(BT!=NULL)
+   { //当二叉树非空时进行如下操作
+    Clear(BT->left); //删除左子树
+    Clear(BT->right);//删除右子树
+    delete BT;       //删除根结点
+    BT=NULL;}        //置根指针为空
+}
+//二叉树类相关操作的测试btree2M.cpp
+#include<iostream.h>
+#include<iomanip.h>
+#include<stdlib.h>
+#include<strstrea.h>
+#include "btree2.h"
+#include "btree2.cpp"
+
+void main()
+{cout<<"btree2M.cpp运行结果:\n";
+ int n;
+ char b[80]="(a)(b),c(d),e(f),g(h),i(j),k(l),m(n),o@";
+ BinaryTree<char> B;
+ cout<<"创建的二叉树为:\n";
+ B.CreateBTree(b);cout<<endl;
+ if(!B.BTreeEmpty())
+   cout<<"二叉树非空!\n";
+ else
+   cout<<"二叉树为空!\n";
+ cout<<"先序遍历二叉树:\n";
+ B.TraverseBTree(1);cout<<endl;
+ cout<<"中序遍历二叉树:\n";
+ B.TraverseBTree(2);cout<<endl;
+ cout<<"后序遍历二叉树:\n";
+ B.TraverseBTree(3);cout<<endl;
+ cout<<"按层遍历二叉树:\n";
+ B.TraverseBTree(4);cout<<endl;
+ n=B.BTreeDepth();
+ cout<<"二叉树的深度="<<n<<endl;
+ n=B.BTreeCount();
+ cout<<"二叉树的所有结点数="<<n<<endl;
+ n=B.BTreeLeafCount();
+ cout<<"二叉树的所有叶子结点数="<<n<<endl;
+ cout<<"按二叉树的广义表输出:\n";
+ B.PrintBTree();cout<<endl;
+ cin.get();}
+btree2M.cpp运行结果:
+创建的二叉树为:
+ a b c d e f g h i j k l m n o
+二叉树非空!
+先序遍历二叉树:
+a b c d e f g h i j k l m n o 
+中序遍历二叉树:
+b a d c f e h g j i l k n m o 
+后序遍历二叉树:
+b d f h j l n o m k i g e c a 
+按层遍历二叉树:
+a b c d e f g h i j k l m n o 
+二叉树的深度=8
+二叉树的所有结点数=15
+二叉树的所有叶子结点数=8
+按二叉树的广义表输出:
+a(b,c(d,e(f,g(h,i(j,k(l,m(n,o)))))))
+

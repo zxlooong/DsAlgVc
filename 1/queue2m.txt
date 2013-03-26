@@ -1,0 +1,122 @@
+//顺序循环队列的类定义queue2.h
+//最大队列长度
+#define QueueSize 10
+typedef int datatype;
+class cirqueue{
+ private:
+//队列头指针,若队列不空则指向队列头元素
+  int front;
+//队列尾指针,若队列不空则指向队列尾元素的下一个位置
+  int rear;
+  int count;
+//初始化的动态分配存储空间首地址
+  datatype *data;
+ public:
+//构造函数
+ cirqueue();
+//析构函数
+ ~cirqueue(){delete []data;}
+// 判断队空
+ int queueempty();
+// 判断队满
+ int queuefull();
+// 入队(队列的插入)
+ void enqueue(datatype);
+// 出队(队列的删除)
+ datatype dequeue();
+// 取队列的头元素
+ datatype queuefront();
+//求队列的长度(即队列的元素个数)
+ int QueueLength();
+};
+//顺序循环队列的实现queue2.cpp
+#include "queue2.h"
+//构造函数
+ cirqueue::cirqueue()
+ {data=new datatype[QueueSize];
+  front=rear=count=0;}
+// 判断队空
+int cirqueue::queueempty() {
+  return count==0;}
+// 判断队满
+int cirqueue::queuefull(){
+  return count==QueueSize;}
+// 入队(队列的插入)
+void cirqueue::enqueue(datatype x)
+//在队列中插入一元素e为Q的新队尾元素
+ {if(queuefull())
+   cerr<<"队列满.\n";
+  count++;
+  data[rear]=x;
+  rear=(rear+1)%QueueSize;
+  //rear指针后移
+ }
+// 出队(队列的删除)
+datatype cirqueue::dequeue()
+//若队列不空则删除队列头部元素并用e返回其值
+ {datatype temp;
+  if(queueempty())
+   cerr<<"队列空.\n";
+  temp=data[front];
+  count--;
+  //front指针后移
+  front=(front+1)%QueueSize;
+  return temp;
+ }
+// 取队列的头元素
+datatype cirqueue::queuefront()
+ {if(queueempty())
+   cerr<<"队列空.\n";
+  return data[front];}
+//求队列的长度(即队列的元素个数)
+int cirqueue::QueueLength()
+{return count;}
+// 顺序循环队列的应用queue2m.cpp
+#include<iostream.h>
+#include<iomanip.h>
+#include "queue2.cpp"
+void main()
+{cout<<"queue2m.cpp运行结果:\n";
+ cirqueue MyQueue;
+ int i,m,x,a[3];
+ cout<<"输入产生随机数的种子数m:";cin>>m;
+ srand(m);
+ cout<<"生成顺序循环队列MyQueue:\n";
+ for(i=0;i<QueueSize;)
+  {x=rand()%1000;
+   if(100<=x&&x<=999)
+    {MyQueue.enqueue(x);i++;}}
+ cout<<"求顺序循环队列MyQueue的长度:";
+ cout<<MyQueue.QueueLength()<<endl;
+ cout<<"输出顺序循环队列MyQueue:\n";
+ cout<<"同时求任一个三位数是否为回文数.\n";
+ while(!MyQueue.queueempty())
+  {x=MyQueue.dequeue();
+   cout<<setw(4)<<x;
+   a[0]=x%10;
+   x=x/10;a[1]=x%10;
+   x=x/10;a[2]=x;
+   if(a[0]!=a[2]) cout<<"不是回文数!\n";
+   if(a[0]==a[2]) cout<<"是回文数!\n";
+  }
+ cin.get();cin.get();}
+queue2m.cpp运行结果:
+输入产生随机数的种子数m:1500
+生成顺序循环队列MyQueue:
+求顺序循环队列MyQueue的长度:10
+输出顺序循环队列MyQueue:
+同时求任一个三位数是否为回文数.
+ 535是回文数!
+ 250不是回文数!
+ 854不是回文数!
+ 828是回文数!
+ 151是回文数!
+ 467不是回文数!
+ 166不是回文数!
+ 300不是回文数!
+ 655不是回文数!
+ 340不是回文数!
+
+
+
+

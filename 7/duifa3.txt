@@ -1,0 +1,73 @@
+// 堆排序法(迭代器)duifa3.cpp
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <vector>
+using namespace std;
+void main()
+{cout<<"duifa3.cpp运行结果:\n";
+ const int SIZE=10;int i,a[SIZE];
+ for(i=0;i<SIZE;i++)
+  a[i]=random(201+i)%80;
+ vector<signed int>v(a,a+SIZE),v2;
+ ostream_iterator<int> output(cout," ");
+ cout<<"Vector v before make_heap:\n";
+ copy(v.begin(),v.end(),output);
+ make_heap(v.begin(),v.end());
+ cout<<"\nVector v after make_heap:\n";
+ copy(v.begin(),v.end(),output);
+ sort_heap(v.begin(),v.end());
+ cout<<"\nVector v after sort_heap:\n";
+ copy(v.begin(),v.end(),output);
+ // perform the heapsort with push_heap and pop_heap
+ cout<<"\nArray a contains: ";
+ copy(a,a+SIZE,output);
+ for(i=0;i<SIZE;++i) {
+   v2.push_back(a[i]);
+   push_heap(v2.begin(),v2.end());
+   cout<<"\nv2 after push_heap(a["<<i<<"]): ";
+   copy(v2.begin(),v2.end(),output);}
+ for(i=0;i<(int)v2.size();++i) {
+   cout<<"\nv2 after "<<v2[0]<<" popped from heap\n";
+   pop_heap(v2.begin(),v2.end()-i);
+   copy(v2.begin(),v2.end(),output);}
+ cout<<endl;cin.get();}
+duifa3.cpp运行结果:
+Vector v before make_heap:
+26 72 7 32 22 15 65 30 50 51 
+Vector v after make_heap:
+72 51 65 50 26 15 7 30 32 22 
+Vector v after sort_heap:
+7 15 22 26 30 32 50 51 65 72 
+Array a contains: 26 72 7 32 22 15 65 30 50 51 
+v2 after push_heap(a[0]): 26 
+v2 after push_heap(a[1]): 72 26 
+v2 after push_heap(a[2]): 72 26 7 
+v2 after push_heap(a[3]): 72 32 7 26 
+v2 after push_heap(a[4]): 72 32 7 26 22 
+v2 after push_heap(a[5]): 72 32 15 26 22 7 
+v2 after push_heap(a[6]): 72 32 65 26 22 7 15 
+v2 after push_heap(a[7]): 72 32 65 30 22 7 15 26 
+v2 after push_heap(a[8]): 72 50 65 32 22 7 15 26 30 
+v2 after push_heap(a[9]): 72 51 65 32 50 7 15 26 30 22 
+v2 after 72 popped from heap
+65 51 22 32 50 7 15 26 30 72 
+v2 after 65 popped from heap
+51 50 22 32 30 7 15 26 65 72 
+v2 after 51 popped from heap
+50 32 22 26 30 7 15 51 65 72 
+v2 after 50 popped from heap
+32 30 22 26 15 7 50 51 65 72 
+v2 after 32 popped from heap
+30 26 22 7 15 32 50 51 65 72 
+v2 after 30 popped from heap
+26 15 22 7 30 32 50 51 65 72 
+v2 after 26 popped from heap
+22 15 7 26 30 32 50 51 65 72 
+v2 after 22 popped from heap
+15 7 22 26 30 32 50 51 65 72 
+v2 after 15 popped from heap
+7 15 22 26 30 32 50 51 65 72 
+v2 after 7 popped from heap
+7 15 22 26 30 32 50 51 65 72 
+

@@ -1,0 +1,150 @@
+//顺序栈的类定义stack.h
+#define ERROR 0
+#define EQUAL 1
+#define OVERFLOW -1
+#define STACKSIZE 100
+#define STACKINCREMENT 10
+
+class SqStack
+{private:
+  SElemType *base;
+  SElemType *top;
+  int stacksize;
+ public:
+//构造一个空栈S
+  Status InitStack(SqStack  **S);
+//栈存在则栈被销毁
+  Status DestroyStack();
+//栈存在则清为空栈
+  Status ClearStack();
+//栈存在则返回true,否则false
+  bool StackEmpty();
+// 栈存在则返回栈的元素个数,即栈的长度
+  int StackLength();
+//栈存在且非空则返回栈的栈顶元素
+  SElemType GetTop();
+// 栈存在则插入元素e为新的栈顶元素
+  Status Push(SElemType e);
+// 栈存在且非空则删除栈的栈顶元素并用e返回其值
+  SElemType Pop(SElemType *e);
+// 栈的遍历
+  void StackTraverse(void (*visit)(SElemType *));
+};
+//顺序栈的实现stack.cpp
+#include "stack.h"
+Status SqStack::InitStack(SqStack **S)
+{ (*S)=(SqStack *) malloc(sizeof(SqStack));
+  (*S)->base=(SElemType *)malloc(STACKSIZE *sizeof(SElemType));
+  if(!(*S)->base)exit(OVERFLOW);
+  (*S)->top=(*S)->base;
+  (*S)->stacksize=0;
+  return 1;}
+
+Status SqStack::DestroyStack()
+{free(base);return 1;}
+
+Status SqStack::ClearStack()
+{ top=base;return 1;}
+
+bool SqStack::StackEmpty()
+{ if(stacksize==0) return true;
+  else return false;
+}
+int SqStack::StackLength()
+{ return stacksize;}
+SElemType SqStack::GetTop()
+{ if(top==base)
+   {cerr<<"空栈!\n";exit(1);}
+  return *(top-1);
+}
+Status SqStack::Push(SElemType e)
+{ *(top++)=e;stacksize++;
+  return 1;
+}
+SElemType SqStack::Pop(SElemType *e)
+{ if(top==base)
+   {cerr<<"空栈!\n";exit(1);}
+  *e=*--top;
+  stacksize--;
+  return *e;
+}
+void SqStack::StackTraverse(void (*visit)(SElemType *))
+{while(top!=base){
+   stacksize--;visit(--top);}}
+//顺序栈的测试stackmain.cpp
+#include<iostream.h>
+#include<iomanip.h>
+#include<malloc.h>
+#include<conio.h>
+typedef int Status ;
+typedef struct STU{
+  char name[10];
+  char stuno[10];
+  int age;
+  int score;
+}SElemType;
+void StackPrintElem(SElemType *e)
+{cout<<"姓名   学号  年龄 成绩\n";
+ cout<<e->name<<setw(8)<<e->stuno;
+ cout<<setw(4)<<e->age;
+ cout<<setw(5)<<e->score<<endl;
+}
+#include"stack.cpp"
+void main()
+{ SElemType e;
+  SqStack *Sa;
+  clrscr();
+  cout<<"stackmain.cpp运行结果:\n";
+  Sa->InitStack(&Sa);
+  strcpy(e.name,"stu1");
+  strcpy(e.stuno,"100001");
+  e.age=20;
+  e.score=87;
+  cout<<"现在栈是空栈!\n";
+  cout<<"现在调用压栈函数!\n";
+  Sa->Push(e);
+  cout<<"现在栈有一个元素!\n";
+  StackPrintElem(&Sa->GetTop());
+  if(Sa->StackEmpty()) cout<<"栈Sa空!\n";
+  else cout<<"栈Sa非空!\n";
+  strcpy(e.name,"stu3");
+  strcpy(e.stuno,"100002");
+  e.age=21;
+  e.score=90;
+  Sa->Push(e);
+  cout<<"现在栈有二个元素!\n";
+  StackPrintElem(&e);
+  cout<<"栈Sa的长度:"<<Sa->StackLength()<<endl;
+  cout<<"现在将元素e弹出栈!\n";
+  Sa->Pop(&e);
+  StackPrintElem(&e);
+  cout<<"栈的剩余元素:\n";
+  Sa->StackTraverse(StackPrintElem);
+  if(Sa->StackEmpty()) cout<<"栈Sa空!\n";
+  else cout<<"栈Sa非空!\n";
+  getch();}
+stackmain.cpp运行结果:
+现在栈是空栈!
+现在调用压栈函数!
+现在栈有一个元素!
+姓名   学号  年龄 成绩
+stu1  100001  20   87
+栈Sa非空!
+现在栈有二个元素!
+姓名   学号  年龄 成绩
+stu3  100002  21   90
+栈Sa的长度:2
+现在将元素e弹出栈!
+姓名   学号  年龄 成绩
+stu3  100002  21   90
+栈的剩余元素:
+姓名   学号  年龄 成绩
+stu1  100001  20   87
+栈Sa空!
+
+
+
+
+
+
+

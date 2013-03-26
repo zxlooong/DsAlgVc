@@ -1,0 +1,263 @@
+//稀疏矩阵的类定义与操作xishu.h
+//假设非0元个数的最大值为100
+#define MAXSIZE 100
+//三元组顺序表
+class TSMatrix;
+class Triple
+{public:
+  int ii,jj;//行号和列号
+  ElemType e;
+  friend class TSMatrix;
+};
+class TSMatrix
+{public:
+   //构造函数
+   TSMatrix( ) {}
+  //构造函数,创建一个Mrow行,Mcol列且非零元个数为t的稀疏矩阵
+  TSMatrix(int Mrow,int Mcol,int t);
+  //求稀疏矩阵的转置矩阵
+  void TrMatrix(TSMatrix &);
+  //快速转置
+  void FastTrMatrix(TSMatrix &);
+  //稀疏矩阵相乘
+  void mulmatrix(TSMatrix &,TSMatrix &);
+  Triple data[MAXSIZE];//非0三元组表
+  int mu,nu,tu;//稀疏矩阵的行数、列数和非零元个数
+};
+//创建一个Mrow行,Mcol列且非零元个数为t的稀疏矩阵
+TSMatrix::TSMatrix(int Mrow,int Mcol,int t)
+{ int m,n,i,j,f0=0;
+  if(t<=0) exit(0);
+  ElemType (*A)[MCOL]=new ElemType[MROW][MCOL];
+  if(!A){cerr<<"内存分配失败!\n";exit(-1);}
+  for(i=0;i<Mrow;i++)
+   for(j=0;j<Mcol;j++) A[i][j]=0;
+  while(f0<=t)
+   {m=random(11);
+    n=random(7);
+    if(m>=0&&m<Mrow&&n>=0&&n<Mcol)
+     {A[m][n]=random(6);
+      if(A[m][n]!=0) f0++;
+   }}
+ for(i=0;i<Mrow;i++)
+ {for(j=0;j<Mcol;j++)
+   cout<<setw(3)<<A[i][j];
+  cout<<endl;}
+}
+//求稀疏矩阵的转置矩阵
+void TSMatrix::TrMatrix(TSMatrix &T)
+{int p,q,col;
+ T.mu=nu;T.nu=mu;T.tu=tu;
+ if(T.tu){ //如果T的非0元个数不为0
+  q=0;
+  for(col=0;col<nu;++col)
+   for(p=0;p<tu;++p)
+     if(data[p].jj==col){
+       T.data[q].ii = data[p].jj;
+       T.data[q].jj = data[p].ii;
+       T.data[q].e = data[p].e;
+       ++q;}}
+}
+//快速转置
+void TSMatrix::FastTrMatrix(TSMatrix &T)
+{int col,p,q,t,num[N],cpot[N];
+ T.mu=nu;T.nu=mu;T.tu=tu;
+ if(T.tu){
+  for(col=0;col<nu;++col)  num[col] = 0;
+    //先置M每列非0元个数均为0
+  for(t=0;t<tu;++t)  ++num[data[t].jj];
+    //求M中每一列非0元个数
+  cpot[0]=0; //M中第一列第一个非元在T中的序号为1
+  for(col=1;col<nu;++col)
+    cpot[col]=cpot[col-1]+num[col-1];
+    //求M中第col列中第一个非0元在T中的序号
+  for(p=0;p<tu;++p){
+   col=data[p].jj; //记下M中第p个元素的列号
+   q=cpot[col];     //该列中第一个非0元在T中的序号
+   T.data[q].ii=data[p].jj;
+   T.data[q].jj=data[p].ii;
+   T.data[q].e=data[p].e;//行、列交换,并赋值
+   ++cpot[col];}} //该列下一个非0元序号=上一个序号+1
+}
+//稀疏矩阵相乘
+void TSMatrix:: mulmatrix(TSMatrix &b,TSMatrix &c)
+{int i,colB,colA,rowA;
+ if(nu!=b.mu){
+   cerr<<"error\n"; exit(0);}
+ if(tu*b.tu!=0){
+  int *rowSize=new int[b.mu];
+  int *rowStart=new int[b.mu+1];
+  ElemType *temp=new ElemType[b.nu];
+  for(i=0;i<b.mu;i++) rowSize[i]=0;
+  for(i=0;i<b.tu;i++) rowSize[b.data[i].ii]++;
+  rowStart[0]=0;
+  for(i=1;i<=b.mu;i++) rowStart[i]=rowStart[i-1]+rowSize[i-1];
+  int current=0,lastInresult=-1;
+  while(current<tu)
+  {rowA=data[current].ii;
+   for(i=0;i<b.nu;i++) temp[i]=0;
+   while(current<tu&&data[current].ii==rowA)
+   {colA=data[current].jj;
+    for(i=rowStart[colA];i<rowStart[colA+1];i++)
+    {colB=b.data[i].jj;
+     temp[colB]+=data[current].e*b.data[i].e;}
+     current++;}
+     for(i=0;i<b.nu;i++)
+     if(temp[i]!=0)
+      {lastInresult++;
+       c.data[lastInresult].ii=rowA;
+       c.data[lastInresult].jj=i;
+       c.data[lastInresult].e=temp[i];}
+    }
+ c.mu=mu;c.nu=b.nu;c.tu=lastInresult+1;
+ delete []rowSize;delete []rowStart;delete []temp;
+}}
+//稀疏矩阵相关操作的测试xishuM.cpp
+#include<conio.h>
+#include<iostream.h>
+#include<iomanip.h>
+
+typedef int ElemType;
+#define L 6
+#define N 7
+const int MROW=3;
+const int MCOL=4;
+#include "xishu.h"
+//三元组顺序表的输出
+void print(TSMatrix a)
+{cout<<"   i   j   e\n";
+ for(int k=0;k<a.tu;k++)
+  {cout<<setw(4)<<a.data[k].ii;
+   cout<<setw(4)<<a.data[k].jj;
+   cout<<setw(4)<<a.data[k].e<<endl;}
+}
+void  main()
+{cout<<"xishuM.cpp运行结果:\n";
+ int b[N][L],i,j,k=0;
+ int a[L][N]={0,12,9,0,0,0,0,0,0,0,0,0,0,0,-3,0,0,0,0,14,0,
+    0,0,24,0,0,0,0,0,18,0,0,0,0,0,15,0,0,-7,0,0,0};
+ TSMatrix a1,b1,c1;
+ a1.mu=L;a1.nu=N;a1.tu=0;
+ cout<<"稀疏矩阵a1:\n";
+ for(i=0;i<L;i++)//输出数组a1
+  {for(j=0;j<N;j++)
+    cout<<setw(3)<<a[i][j];
+    cout<<'\n';}
+ //创建三元组顺序表
+ for (i=0;i<L;i++)
+  for (j=0;j<N;j++)
+   if (a[i][j]!=0)
+    { a1.data[k].ii=i;
+      a1.data[k].jj=j;
+      a1.data[k].e=a[i][j];
+      a1.tu++;k++;}
+ cout<<"原三元组顺序表a1:\n";
+ print(a1);
+ cout<<"按任意键继续...\n";getch();
+ a1.TrMatrix(c1);
+ for (i=0;i<N;i++)//初始化数组
+  for (j=0;j<L;j++) b[i][j]=0;
+ for (k=0;k<c1.tu;k++)
+   b[c1.data[k].ii][c1.data[k].jj]=c1.data[k].e;
+ cout<<"转置矩阵 c1:\n";
+ for (i=0;i<N;i++)
+  { for (j=0;j<L;j++)
+     cout<<setw(3)<<b[i][j];
+    cout<<'\n';}
+ cout<<"转置矩阵三元组顺序表:\n";
+ print(c1);
+ cout<<"按任意键继续...\n";getch();
+ a1.FastTrMatrix(b1);
+ for (i=0;i<N;i++)//initial array_b
+  for (j=0;j<L;j++) b[i][j]=0;
+ for (k=0;k<b1.tu;k++)
+   b[b1.data[k].ii][b1.data[k].jj]=b1.data[k].e;
+ cout<<"转置矩阵 b1:\n";
+ for (i=0;i<N;i++)
+  { for (j=0;j<L;j++)
+     cout<<setw(3)<<b[i][j];
+    cout<<'\n';}
+ int p[3][4]={{10,0,5,7},{2,1,0,0},{3,0,4,0}};
+ int w[4][2]={{2,0},{4,8},{0,14},{3,5}};
+ TSMatrix aa,bb,cc;
+ aa.mu=3;aa.nu=4;aa.tu=0;
+ bb.mu=4;bb.nu=2;bb.tu=0;
+ //创建三元组顺序表
+ for (k=0,i=0;i<3;i++)
+  for (j=0;j<4;j++)
+   if (p[i][j]!=0)
+    { aa.data[k].ii=i;aa.data[k].jj=j;
+      aa.data[k].e=p[i][j];
+      aa.tu++;k++;}
+ //创建三元组顺序表
+ for (k=0,i=0;i<4;i++)
+  for (j=0;j<2;j++)
+   if (w[i][j]!=0)
+    { bb.data[k].ii=i;bb.data[k].jj=j;
+      bb.data[k].e=w[i][j];
+      bb.tu++;k++;}
+ aa.mulmatrix(bb,cc);
+ cout<<"乘积矩阵三元组顺序表:\n";
+ print(cc);
+ cout<<"创建的稀疏矩阵:\n";
+ TSMatrix ff(MROW,MCOL,4);
+ cout<<"按任意键结束!\n";getch();}
+xishuM.cpp运行结果:
+稀疏矩阵a1:
+  0 12  9  0  0  0  0
+  0  0  0  0  0  0  0
+ -3  0  0  0  0 14  0
+  0  0 24  0  0  0  0
+  0 18  0  0  0  0  0
+ 15  0  0 -7  0  0  0
+原三元组顺序表a1:
+   i   j   e
+   0   1  12
+   0   2   9
+   2   0  -3
+   2   5  14
+   3   2  24
+   4   1  18
+   5   0  15
+   5   3  -7
+按任意键继续...
+转置矩阵 c1:
+  0  0 -3  0  0 15
+ 12  0  0  0 18  0
+  9  0  0 24  0  0
+  0  0  0  0  0 -7
+  0  0  0  0  0  0
+  0  0 14  0  0  0
+  0  0  0  0  0  0
+转置矩阵三元组顺序表:
+   i   j   e
+   0   2  -3
+   0   5  15
+   1   0  12
+   1   4  18
+   2   0   9
+   2   3  24
+   3   5  -7
+   5   2  14
+按任意键继续...
+转置矩阵 b1:
+  0  0 -3  0  0 15
+ 12  0  0  0 18  0
+  9  0  0 24  0  0
+  0  0  0  0  0 -7
+  0  0  0  0  0  0
+  0  0 14  0  0  0
+  0  0  0  0  0  0
+乘积矩阵三元组顺序表:
+   i   j   e
+   0   0  41
+   0   1 105
+   1   0   8
+   1   1   8
+   2   0   6
+   2   1  56
+创建的稀疏矩阵:
+  0  0  2  0
+  0  0  0  5
+  5  0  0  3
+按任意键结束!

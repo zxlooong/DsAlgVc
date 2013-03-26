@@ -1,0 +1,121 @@
+//SPQueue.h
+//考虑优先级相同元素的先进先出
+//问题的顺序优先级队列类定义
+#include<fstream.h>
+#define MaxSize 6
+typedef struct Datatype
+{int taskNo;
+ int priority;
+}datatype;
+class SqPqueue
+{private:
+  datatype data[MaxSize];
+  int count;
+ public:
+//构造函数
+ SqPqueue(){count=0;}
+//析构函数
+ ~SqPqueue(){}
+//清空队列
+ void ClearPq(){count=0;}
+// 判断队空
+ int PQueueEmpty();
+// 判断队满
+ int PQueuefull();
+//重载关系运算符小于<
+ friend int operator <(datatype &,datatype &); 
+// 队列的插入
+ void InsertPQ(datatype);
+// 队列的删除
+ datatype DeQueue();
+// 取队列的头元素
+ datatype PQueuefront();
+//求队列的元素个数
+ int PQueueSize();
+};
+//顺序优先级队列的实现SPQueue.cpp
+#include "SPQueue.h"
+// 判断队空
+int SqPqueue::PQueueEmpty() {
+  return count==0;}
+// 判断队满
+int SqPqueue::PQueuefull(){
+  return count==MaxSize;}
+//重载关系运算符小于<
+int operator <(datatype &b,datatype &c)
+  {return b.priority<c.priority;}
+// 队列的插入
+void SqPqueue::InsertPQ(datatype x)
+ {if(PQueuefull())
+   {cerr<<"队列满.\n";exit(1);}
+  data[count]=x;
+   count++;
+ }
+// 队列的删除
+datatype SqPqueue::DeQueue()
+ {if(PQueueEmpty())
+   {cerr<<"队列空.\n";exit(1);}
+  datatype min=data[0];
+  int minindex=0;
+  for(int i=0;i<count;i++)
+   if(data[i]<min)
+    {min=data[i];minindex=i;}
+  for(int i=minindex;i<count-1;i++)
+   data[i]=data[i+1];
+  count--;
+  return min;
+ }
+// 取队列的头元素
+datatype SqPqueue::PQueuefront()
+ {if(PQueueEmpty())
+   {cerr<<"队列空.\n";exit(1);}
+  datatype min=data[0];
+  for(int i=1;i<count;i++)
+   if(data[i]<min)
+    min=data[i];
+  return min;
+ }
+//求队列的元素个数
+int SqPqueue::PQueueSize()
+{return count;}
+// 顺序优先级队列的应用SqPQueuem.cpp
+#include<iostream.h>
+#include<iomanip.h>
+#include "SPQueue.cpp"
+void main()
+{cout<<"SPQueuem.cpp运行结果:\n";
+ SqPqueue MyQueue;
+ datatype task;
+ int i,m;
+ cout<<"输入产生随机数的种子数m:";cin>>m;
+ srand(m);
+ cout<<"生成顺序优先级队列MyQueue:\n";
+ for(i=0;i<MaxSize;i++)
+ {task.taskNo=i+1;
+  task.priority=rand()%10;
+  MyQueue.InsertPQ(task);}
+ cout<<"求顺序优先级队列MyQueue的长度:";
+ cout<<MyQueue.PQueueSize()<<endl;
+ cout<<"输出顺序优先级队列MyQueue:\n";
+ cout<<"序号 任务号 优先级\n";
+ i=1;
+ while(!MyQueue.PQueueEmpty())
+  {cout<<setw(2)<<i;
+   task=MyQueue.DeQueue();
+   cout<<setw(6)<<task.taskNo;
+   cout<<setw(7)<<task.priority<<endl;
+   i++;}
+ cin.get();cin.get();}
+SPQueuem.cpp运行结果:
+输入产生随机数的种子数m:100
+生成顺序优先级队列MyQueue:
+求顺序优先级队列MyQueue的长度:6
+输出顺序优先级队列MyQueue:
+序号 任务号 优先级
+ 1     2      3
+ 2     5      3
+ 3     4      5
+ 4     6      5
+ 5     3      6
+ 6     1      8
+

@@ -1,0 +1,154 @@
+//链式堆栈的类定义linearStack2.h
+const int LEN=40;
+typedef struct Stack{
+  ElemType data;
+  struct Stack *next;
+}StackNode;//结点数据类型
+class LinStack
+{private:
+  StackNode *top;//指向栈顶的指针
+  int size;// 堆栈的结点个数
+ public:
+//构造函数
+  LinStack();
+//初始化栈,分配存储空间并置空
+  void InitStack(int);
+//创建有序或无序栈
+  void CreateStack(int m=LEN,int mark=0);
+//返回堆栈的结点个数
+  int StackSize();
+//清空栈
+  void ClearStack();
+//删除栈
+  void DeleteStack();
+//检查栈是否为空
+  bool StackEmpty();
+//读取栈顶元素
+  ElemType Peek();
+//向栈中插入元素
+  void Push(const ElemType&);
+//从栈中删除元素
+  ElemType Pop();
+//检查栈是否已满
+  bool StackFull(ElemType m=LEN);
+//栈的输出
+  void StackPrint(ElemType m=LEN);
+};
+// 链式堆栈的实现linearStack2.cpp
+#include "linearStack2.h"
+//构造函数
+ LinStack::LinStack()
+ {top=NULL;size=0;}
+//初始化栈,分配存储空间并置空
+  void LinStack::InitStack(int L)
+ {top=new StackNode[L];
+  size=0;
+ }
+//创建有序或无序栈
+ void LinStack::CreateStack(int m,int mark)
+ {ElemType x,a[LEN];
+  for(int i=0;i<m;i++) a[i]=random(215+i)%100;
+  for(int i=0;i<m-1;i++)
+  {int k=i;
+   for(int j=i+1;j<m;j++)
+    if(a[k]>a[j]) k=j;
+   if(k!=i)
+   {x=a[k];a[k]=a[i];a[i]=x;}}
+  for(int i=0;i<m;i++)
+  if(mark==1) Push(a[m-1-i]);//升序
+  else
+   if(mark==-1) Push(a[i]);//降序
+   else Push(rand()%100);//无序
+ }
+ int LinStack::StackSize()
+ {return size;}
+//清空栈
+ void LinStack::ClearStack() {size=0;}
+//删除栈
+ void LinStack::DeleteStack()
+ {delete top;}
+//检查栈是否为空
+ bool LinStack::StackEmpty() {return size==0;}
+//读取栈顶元素
+ ElemType LinStack::Peek()
+ { return top->data;}
+//向栈中插入元素
+ void LinStack::Push(const ElemType& item)
+ {StackNode *newNode=new StackNode;
+  newNode->data=item;newNode->next=top;
+  top=newNode;
+  size++;
+ }
+//从栈中删除元素
+ ElemType LinStack::Pop()
+ {if(size==0) {
+   cerr<<"栈为空!"<<endl;exit(1);}
+   StackNode *p=top->next;
+   ElemType data=top->data;
+   delete top;
+   size--;
+   top=p;
+   return data;
+ }
+//检查栈是否已满
+ bool LinStack::StackFull(ElemType m)
+ {return size==m;}
+//栈的输出
+ void LinStack::StackPrint(ElemType m)
+ {for(int i=0;i<m;i++)
+   cout<<setw(3)<<Pop(); }
+// 链式堆栈的测试linearStack2m.cpp
+#include<iostream.h>
+#include<iomanip.h>
+typedef int ElemType;
+#include "linearStack2.cpp"
+void main()
+{cout<<"linearStack2m.cpp运行结果:\n";
+ int m;
+ LinStack q,p,w;
+ cout<<"输入欲构造栈q的长度m:";cin>>m;
+ cout<<"创建栈q(升序):\n";
+ q.CreateStack(m,1);
+ cout<<"q栈的结点个数="<<q.StackSize()<<endl;
+ cout<<"\n输出q栈元素:\n";
+ q.StackPrint(m);cout<<endl;
+ cout<<"q栈:";
+ if(q.StackFull(m)==1)
+  cout<<"已满!\n";
+ else cout<<"未满!\n";
+ cout<<"创建栈p(降序):\n";
+ p.CreateStack(m,-1);
+ cout<<"p栈:";
+ if(p.StackFull(m)==1)
+  cout<<"已满!\n";
+ else cout<<"未满!\n";
+ cout<<"删除元素为:"<<p.Pop()<<endl;
+ cout<<"p栈:";
+ if(p.StackEmpty()==1)
+  cout<<"为空!\n";
+ else cout<<"为非空!\n";
+ cout<<"输出p栈元素:\n";
+ p.StackPrint(m-1);cout<<endl;
+ cout<<"创建栈w(无序):\n";
+ w.CreateStack(m);
+ cout<<"输出w栈元素:\n";
+ w.StackPrint(m);cout<<endl;
+ p.ClearStack();
+ p.DeleteStack();
+ cin.get();cin.get();}
+linearStack2m.cpp运行结果:
+输入欲构造栈q的长度m:10
+创建栈q(升序):
+q栈的结点个数=10
+输出q栈元素:
+  8 19 32 47 48 63 66 78 93 94
+q栈:未满!
+创建栈p(降序):
+p栈:已满!
+删除元素为:99
+p栈:为非空!
+输出p栈元素:
+ 86 79 56 45 41 40 36  6  6
+创建栈w(无序):
+输出w栈元素:
+ 59  6 67 29 97 80 44 39 37 29

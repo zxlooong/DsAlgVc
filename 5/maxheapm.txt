@@ -1,0 +1,159 @@
+//最大堆的类定义maxheap.h
+#define HeapSIZE 15
+#define MaxHeapSize 100
+
+class maxheap
+{private:
+  ElemType *heapArray;
+  int maxheapSize;
+  int heapsize;
+ public:
+//构造一个空堆S
+  maxheap(int);
+//堆存在则堆被销毁
+  void Destroyheap();
+//堆存在则清为空堆
+  void Clearheap();
+//堆空则返回true,否则false
+  bool heapEmpty();
+//堆满则返回true,否则false
+  bool heapFull();
+// 堆存在则返回堆的元素个数,即堆的长度
+  int heapLength();
+//堆存在且非空则返回堆的堆顶元素
+  ElemType GetTop();
+// 插入后的堆调整,使之符合最大堆的定义
+  void FilterUp();
+//删除后的堆调整,使之符合最大堆的定义
+  void FilterDown();
+//堆插入
+  void heapInsert(ElemType item);
+//堆删除
+  ElemType heapDelete();
+};
+//最大堆的实现maxheap.cpp
+#include "maxheap.h"
+maxheap::maxheap(int MaxSize)
+{if(MaxSize<=0) {
+  cerr<<"参数MaxSize非法!\n";exit(1);}
+ heapArray=(ElemType *) new ElemType[MaxSize];
+ if(!heapArray) exit(-1);
+ maxheapSize=HeapSIZE;
+ heapsize=0;
+}
+void maxheap::Destroyheap()
+{free(heapArray);}
+
+void maxheap::Clearheap()
+{heapsize=0;}
+
+bool maxheap::heapEmpty()
+{ if(heapsize==0) return true;
+  else return false;
+}
+bool maxheap::heapFull()
+{return heapsize==maxheapSize;}
+int maxheap::heapLength()
+{ return heapsize;}
+ElemType maxheap::GetTop()
+{ if(heapsize==0)
+   {cerr<<"堆已空!\n";exit(1);}
+  return heapArray[0];
+}
+void maxheap::FilterUp()
+{int c,p;
+ ElemType temp;
+ c=heapsize-1;
+ p=(c-1)/2;
+ temp=heapArray[c];
+ while(c!=0)
+ {if(heapArray[p]>temp) break;
+  heapArray[c]=heapArray[p];
+  c=p;
+  p=(c-1)/2;}
+ heapArray[c]=temp;
+}
+void maxheap::FilterDown()
+{int c,p;
+ ElemType temp;
+ p=0;
+ c=2*p+1;
+ temp=heapArray[p];
+ while(c<heapsize)
+ {if(c+1<heapsize&&heapArray[c+1]>heapArray[c])
+   c=c+1;
+  if(temp>heapArray[c]) break;
+  heapArray[p]=heapArray[c];
+  p=c;
+  c=2*p+1;}
+ heapArray[p]=temp;
+}
+void maxheap::heapInsert(ElemType item)
+{if(heapsize==HeapSIZE)
+  {cerr<<"堆已满!\n";exit(1);}
+ heapArray[heapsize]=item;
+ heapsize++;
+ FilterUp();
+}
+ElemType maxheap::heapDelete()
+{ElemType temp;
+ if(heapsize==0)
+  {cerr<<"堆已空!\n";exit(1);}
+ temp=heapArray[0];
+ heapArray[0]=heapArray[heapsize-1];
+ heapsize--;
+ FilterDown();
+ return(temp);}
+//最大堆类的测试maxheapm.cpp
+#include<iostream.h>
+#include<iomanip.h>
+#include<conio.h>
+typedef int ElemType;
+#include "maxheap.cpp"
+void PrintArray(int a[],int n)
+{for(int i=0;i<n;i++)
+  cout<<setw(3)<<a[i];
+ cout<<endl;
+}
+void main()
+{cout<<"maxheapm.cpp运行结果:\n";
+ ElemType b[HeapSIZE];
+ for(int i=0;i<HeapSIZE;i++)
+  b[i]=random(50);
+ cout<<"输出数组b:\n";
+ PrintArray(b,HeapSIZE);
+ maxheap H(HeapSIZE),H1(HeapSIZE);
+ for(int i=0;i<HeapSIZE;i++)
+  H.heapInsert(b[i]);
+ cout<<"输出当前堆H的堆顶元素:\n";
+ cout<<setw(3)<<H.GetTop()<<endl;
+ cout<<"输出插入后数组b:\n";
+ PrintArray(b,HeapSIZE);
+ cout<<"输出逐个删除的H堆中元素:\n";
+ while(!H.heapEmpty())
+  cout<<setw(3)<<H.heapDelete();
+ cout<<endl;
+ for(int i=0;i<HeapSIZE;i++)
+  H1.heapInsert(random(80));
+ cout<<"输出当前堆H1的堆顶元素:\n";
+ cout<<setw(3)<<H1.GetTop()<<endl;
+ cout<<"输出逐个删除的H1堆中元素:\n";
+ while(!H1.heapEmpty())
+  cout<<setw(3)<<H1.heapDelete();
+ cout<<endl;
+ H.Destroyheap();H1.Destroyheap();
+ getch();}
+maxheapm.cpp运行结果:
+输出数组b:
+ 49  4 36 44 12 33  6 34 36 11 11 44  0 32 43
+输出当前堆H的堆顶元素:
+ 49
+输出插入后数组b:
+ 49  4 36 44 12 33  6 34 36 11 11 44  0 32 43
+输出逐个删除的H堆中元素:
+ 49 44 44 43 36 36 34 33 32 12 11 11  6  4  0
+输出当前堆H1的堆顶元素:
+ 79
+输出逐个删除的H1堆中元素:
+ 79 78 72 72 71 65 61 59 45 39 37 26 23 13  8
+

@@ -1,0 +1,125 @@
+//建立一维,二维数组的类定义intarray.h
+class IntArray1{
+    int size;//数组个数
+    int *data;//数组指针
+    void init(int n);
+    IntArray1():size(0),data(0){}
+    friend class IntArray2;
+public:
+    //构造函数
+    IntArray1(int n){ init(n);}
+    //析构函数
+    ~IntArray1(){ delete []data;}
+    //下标操作符重载
+    //定义为引用以保证既可取值也可赋值
+    int &operator[](int i);
+    //返回数组长度
+    int size1()const{ return size;}
+    //重新定义数组
+    void ReArray(int si);
+};
+class IntArray2{
+    int size;
+    IntArray1 *data;
+public:
+    //构造函数
+    IntArray2(int,int);
+    //析构函数
+    ~IntArray2(){ delete []data;}
+    //下标操作符重载
+    //定义为引用以保证既可取值也可赋值
+    IntArray1 &operator[](int i);
+    //返回二维数组行数
+    int size1()const{ return size;}
+    //返回二维数组列数
+    int size2()const{ return data->size1();}};
+//intarray.cpp
+//建立一维,二维数组的类实现
+//数组下标从1开始,引用下标作下标越界检查
+#include<iostream.h>
+#include<iomanip.h>
+#include "intarray.h"
+void IntArray1::init(int n)
+{if(n<1){
+  cout<<"Error dimension description";
+  exit(1);}
+ size=n;
+ data=new int[size];
+}
+int &IntArray1::operator[](int i)
+{if(i<1||i>size){ //下标越界检查
+   cout<<endl<<"Subscript out of range";
+   delete []data;
+   exit(2);}
+ return data[i-1];//IntArry1的下标从1开始
+}
+void IntArray1::ReArray(int si)
+{if(si<1)
+  {cerr<<"长度无效!\n";exit(1);}
+ if(si==size) return;
+ int *newArray=new int[si];
+ if(!newArray)
+  {cerr<<"内存分配失败!\n";exit(1);}
+ int n=(si<=size)?si:size;
+ int *souceP=data;
+ int *destP=newArray;
+ while(n--)
+  *destP++=*souceP++;
+ delete []data;
+ data=newArray;
+ size=si;
+}   
+IntArray2::IntArray2(int m,int n)
+{if(m<1||n<1){
+   cout<<"Error dimension description";
+   exit(1);}
+ size=m;
+ data=new IntArray1[size];
+ for(int i=0;i<size;i++) data[i].init(n);
+}
+IntArray1 &IntArray2::operator[](int i)
+{if(i<1||i>size){ //下标越界检查
+   cout<<endl<<"Subscript out of range";
+   delete []data;
+   exit(1);}
+ return data[i-1];//IntArry2的下标从1开始
+}
+////建立一维,二维数组的类测试intarraym.cpp
+#include <iostream.h>
+#include <iomanip.h>
+#include "intarray.cpp"
+void main()
+{cout<<"intarraym.cpp运行结果:\n";
+ int i,j;
+ IntArray1 a(10);
+ cout<<"数组a长度="<<a.size1()<<endl;
+ for(i=1;i<=10;i++)
+ {a[i]=random(66);
+  cout<<setw(3)<<a[i];}
+ cout<<endl;
+ a.ReArray(12);
+ cout<<"重定义数组a长度="<<a.size1()<<endl;
+ for(i=1;i<=12;i++)
+ {a[i]=random(86);
+  cout<<setw(3)<<a[i];}
+ cout<<endl;
+ IntArray2 b(3,4);
+ for(i=1;i<=b.size1();i++)
+ for(j=1;j<=b.size2();j++)
+  b[i][j]=random(88);
+ cout<<"二维数组b:\n";
+ for(i=1;i<=b.size1();i++)
+ {for(j=1;j<=b.size2();j++)
+   cout<<setw(4)<<b[i][j];
+  cout<<endl;}
+ cout<<endl;cin.get();}
+intarraym.cpp运行结果:
+数组a长度=10
+ 37 54 44 28 42 63 20 48 42 39
+重定义数组a长度=12
+ 55 80 76 70 11 47 19 70 84 79 57 35
+二维数组b:
+  72  69  15  32
+   0  31  71  77
+  56  77  53  71
+

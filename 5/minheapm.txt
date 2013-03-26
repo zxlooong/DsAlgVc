@@ -1,0 +1,159 @@
+//最小堆的类定义minheap.h
+#define HeapSIZE 10
+#define MaxHeapSize 100
+
+class minheap
+{private:
+  ElemType *heapArray;
+  int maxheapSize;
+  int heapsize;
+ public:
+//构造一个空堆S
+  minheap(int);
+//堆存在则堆被销毁
+  void Destroyheap();
+//堆存在则清为空堆
+  void Clearheap();
+//堆空则返回true,否则false
+  bool heapEmpty();
+//堆满则返回true,否则false
+  bool heapFull();
+// 堆存在则返回堆的元素个数,即堆的长度
+  int heapLength();
+//堆存在且非空则返回堆的堆顶元素
+  ElemType GetTop();
+// 插入后的堆调整,使之符合最小堆的定义
+  void FilterUp();
+//删除后的堆调整,使之符合最小堆的定义
+  void FilterDown();
+//堆插入
+  void heapInsert(ElemType item);
+//堆删除
+  ElemType heapDelete();
+};
+//最小堆的实现minheap.cpp
+#include "minheap.h"
+minheap::minheap(int MaxSize)
+{if(MaxSize<=0) {
+   cerr<<"参数MaxSize非法!\n";exit(1);}
+ heapArray=(ElemType *) new ElemType[MaxSize];
+ if(!heapArray) exit(-1);
+ maxheapSize=HeapSIZE;
+ heapsize=0;
+}
+void minheap::Destroyheap()
+{free(heapArray);}
+
+void minheap::Clearheap()
+{heapsize=0;}
+
+bool minheap::heapEmpty()
+{ if(heapsize==0) return true;
+  else return false;
+}
+bool minheap::heapFull()
+{return heapsize==maxheapSize;}
+int minheap::heapLength()
+{ return heapsize;}
+ElemType minheap::GetTop()
+{ if(heapsize==0)
+   {cerr<<"堆已空!\n";exit(1);}
+  return heapArray[0];
+}
+void minheap::FilterUp()
+{int c,p;
+ ElemType temp;
+ c=heapsize-1;
+ p=(c-1)/2;
+ temp=heapArray[c];
+ while(c!=0)
+ {if(heapArray[p]<=temp) break;
+  heapArray[c]=heapArray[p];
+  c=p;
+  p=(c-1)/2;}
+ heapArray[c]=temp;
+}
+void minheap::FilterDown()
+{int c,p;
+ ElemType temp;
+ p=0;
+ c=2*p+1;
+ temp=heapArray[p];
+ while(c<heapsize)
+ {if(c+1<heapsize&&heapArray[c+1]<heapArray[c])
+   c=c+1;
+  if(temp<=heapArray[c]) break;
+  heapArray[p]=heapArray[c];
+  p=c;
+  c=2*p+1;}
+ heapArray[p]=temp;
+}
+void minheap::heapInsert(ElemType item)
+{if(heapsize==HeapSIZE)
+  {cerr<<"堆已满!\n";exit(1);}
+ heapArray[heapsize]=item;
+ heapsize++;
+ FilterUp();
+}
+ElemType minheap::heapDelete()
+{ElemType temp;
+ if(heapsize==0)
+  {cerr<<"堆已空!\n";exit(1);}
+ temp=heapArray[0];
+ heapArray[0]=heapArray[heapsize-1];
+ heapsize--;
+ FilterDown();
+ return(temp);}
+//最小堆类的测试minheapm.cpp
+#include<iostream.h>
+#include<iomanip.h>
+#include<conio.h>
+typedef int ElemType;
+#include "minheap.cpp"
+void PrintArray(int a[],int n)
+{for(int i=0;i<n;i++)
+  cout<<setw(3)<<a[i];
+ cout<<endl;
+}
+void main()
+{cout<<"minheapm.cpp运行结果:\n";
+ ElemType b[10];
+ for(int i=0;i<10;i++)
+  b[i]=random(50);
+ cout<<"输出数组b:\n";
+ PrintArray(b,10);
+ minheap H(10),H1(10);
+ for(int i=0;i<10;i++)
+  H.heapInsert(b[i]);
+ cout<<"输出当前堆H的堆顶元素:\n";
+ cout<<setw(3)<<H.GetTop()<<endl;
+ cout<<"输出插入后数组b:\n";
+ PrintArray(b,10);
+ cout<<"输出逐个删除的H堆中元素:\n";
+ while(!H.heapEmpty())
+  cout<<setw(3)<<H.heapDelete();
+ cout<<endl;
+ for(int i=0;i<10;i++)
+  H1.heapInsert(random(80));
+ cout<<"输出当前堆H1的堆顶元素:\n";
+ cout<<setw(3)<<H1.GetTop()<<endl;
+ cout<<"输出逐个删除的H1堆中元素:\n";
+ while(!H1.heapEmpty())
+  cout<<setw(3)<<H1.heapDelete();
+ cout<<endl;
+ H.Destroyheap();H1.Destroyheap();
+ getch();}
+minheapm.cpp运行结果:
+输出数组b:
+ 49  4 36 44 12 33  6 34 36 11
+输出当前堆H的堆顶元素:
+  4
+输出插入后数组b:
+ 49  4 36 44 12 33  6 34 36 11
+输出逐个删除的H堆中元素:
+  4  6 11 12 33 34 36 36 44 49
+输出当前堆H1的堆顶元素:
+  3
+输出逐个删除的H1堆中元素:
+  3 13 26 40 41 44 52 59 65 78
+

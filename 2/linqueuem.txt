@@ -1,0 +1,122 @@
+//链式队列的类定义linqueue.h
+//最大队列长度
+#define QueueSize 10
+typedef int datatype;
+//链队列的类型定义为一个结构类型：
+typedef struct QueueNode{
+  datatype  data;
+  struct QueueNode *next;
+}queuenode;
+class linkqueue{
+ private:
+  queuenode  *front;//队列头指针.
+  queuenode  *rear; //队列尾指针.
+  int count;// 队列结点个数
+ public:
+//构造函数
+ linkqueue()
+ { front=rear=NULL;count=0; }
+//析构函数
+ ~linkqueue(){front=rear=NULL;}
+// 判断队空
+ int queueempty();
+// 判断队满
+ int queuefull();
+// 入队(队列的插入)
+ void enqueue(datatype);
+// 出队(队列的删除)
+ datatype dequeue();
+// 取队列的头元素
+ datatype queuefront();
+//求队列的长度(即队列的元素个数)
+ int QueueLength();
+};
+//链式队列的实现linqueue.cpp
+#include "linqueue.h"
+// 判断队空
+int linkqueue::queueempty()
+{return front==NULL&&rear==NULL;}
+// 判断队满
+int linkqueue::queuefull()
+{return count==QueueSize;}
+// 入队(队列的插入)
+void linkqueue::enqueue(datatype x)
+//在队列中插入一元素e为Q的新队尾元素
+{queuenode *p;
+ p=(queuenode *)malloc(sizeof(queuenode));
+ p->data=x;
+ p->next=NULL;
+ if(!queueempty()){rear->next=p;rear=p;}
+ else front=rear=p;
+ count++;
+}
+// 出队(队列的删除)
+datatype linkqueue::dequeue()
+//若队列不空则删除队列头部元素并用e返回其值
+{datatype  x;
+ queuenode *p;
+ if(queueempty())
+   {cerr<<"队列已空\n";exit(1);}
+ p=front;
+ x=p->data;
+ front=p->next;
+ if(rear==p) rear=NULL;
+ count--;
+ delete p;
+ return x;
+}
+// 取队列的头元素
+datatype linkqueue::queuefront()
+{if(queueempty())
+   {cerr<<"队列空.\n";exit(1);}
+ return front->data;
+}
+//求队列的长度(即队列的元素个数)
+int linkqueue::QueueLength()
+{return count;}
+// 链式队列的测试linqueuem.cpp
+#include<iostream.h>
+#include<iomanip.h>
+#include "linqueue.cpp"
+void main()
+{cout<<"linqueuem.cpp运行结果:\n";
+ linkqueue MyQueue;
+ int i,x,a[3];
+ cout<<"生成链式队列MyQueue:\n";
+ for(i=0;i<QueueSize;)
+  {x=random(1133+i)%1000;
+   if(100<=x&&x<=999)
+    {MyQueue.enqueue(x);i++;}}
+ cout<<"求链式队列MyQueue的长度:";
+ cout<<MyQueue.QueueLength()<<endl;
+ cout<<"输出链式队列MyQueue:\n";
+ cout<<"同时求任一个三位数是否为回文数.\n";
+ while(!MyQueue.queueempty())
+  {x=MyQueue.dequeue();
+   cout<<setw(4)<<x;
+   a[0]=x%10;
+   x=x/10;a[1]=x%10;
+   x=x/10;a[2]=x;
+   if(a[0]!=a[2]) cout<<"不是回文数!\n";
+   if(a[0]==a[2]) cout<<"是回文数!\n";}
+ cin.get();cin.get();}
+linqueuem.cpp运行结果:
+输入产生随机数的种子数m:1500
+生成链式队列MyQueue:
+求链式队列MyQueue的长度:10
+输出链式队列MyQueue:
+同时求任一个三位数是否为回文数.
+ 631不是回文数!
+ 132不是回文数!
+ 189不是回文数!
+ 376不是回文数!
+ 186不是回文数!
+ 840不是回文数!
+ 285不是回文数!
+ 966不是回文数!
+ 443不是回文数!
+ 169不是回文数!
+
+
+
+

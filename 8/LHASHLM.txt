@@ -1,0 +1,237 @@
+//散列表类定义LHashL.h
+typedef int ElemType;
+struct LNode
+{ElemType data;
+ LNode* next;
+};
+template<class T>
+class LHList
+{LNode** HT;
+ int m;
+ //求一个元素的散列地址
+ int HashAddress(T item, int m)
+   {return item%m;}
+ public:
+  //构造函数,初始化散列表
+  LHList(int MaxSize);
+  //析构函数,清除一个散列表
+  ~LHList();
+  //基于开放地址法的建散列表
+  void CreateHashTable(T A[],int n);
+  //向散列表插入一个元素
+  void Insert(T item);
+  //从散列表中查找一个元素
+  T *Search(T item);
+  //从散列表中删除一个元素
+  bool Delete(T item);
+  //显示输出散列表中的所有元素
+  void PrintHashList();
+};
+//散列表类的实现LHashL.cpp
+#include"LHashL.h"
+//构造函数,初始化散列表
+template<class T>
+LHList<T>::LHList(int MaxSize)
+{m=MaxSize;
+ HT=new LNode*[m];
+ for(int i=0; i<m; i++) HT[i]=NULL;
+}
+//析构函数,清除一个散列表
+template<class T>
+LHList<T>::~LHList()
+{LNode* p;
+ for(int i=0; i<m; i++) {
+   p=HT[i];
+ while(p!=NULL) {
+   HT[i]=p->next;
+   delete p;
+   p=HT[i];}}
+ delete []HT;
+}
+//基于开放地址法的建散列表
+template<class T>
+void LHList<T>::CreateHashTable(T A[],int n)
+{//根据A[0..n-1]中结点建立散列表T[0..m-1]
+ int i;
+ if(n>m) //用开放定址法处理冲突时,装填因子α须不大于1
+  {cerr<<"Load factor>1:\n";return;}
+ for(i=0;i<n;i++) //依次将A[0..n-1]插入到散列表T[0..m-1]中
+   Insert(A[i]);
+}
+//向散列表插入一个元素
+template<class T>
+void LHList<T>::Insert(T item)
+{//计算item的散列地址
+ int d=HashAddress(item,m);
+ //为新元素分配存储结点
+ LNode* p=new LNode;
+ //把新结点插入到d单链表的表头
+ p->data=item;
+ p->next=HT[d];
+ HT[d]=p;
+}
+//从散列表中查找一个元素
+template<class T>
+T *LHList<T>::Search(T item)
+{//计算item的散列地址
+ int d=HashAddress(item,m);
+//得到对应单链表的表头指针
+ LNode* p=HT[d];
+//从该单链表中顺序查找匹配的元素,
+//若查找成功返回该元素的地址
+ while(p!=NULL) {
+  if(p->data==item) return &(p->data);
+  else p=p->next;}
+  //查找失败返回空指针
+ return NULL;
+}
+//从散列表中删除一个元素
+template<class T>
+bool LHList<T>::Delete(T item)
+{//计算item的散列地址
+ int d=HashAddress(item,m);
+ //p指向对应单链表的表头指针
+ LNode* p=HT[d];
+ //若单链表为空，则删除失败返回假
+ if(p==NULL) return false;
+ //若表头结点为被删除的结点,则删除它后返回真
+ if(p->data==item) {
+   HT[d]=p->next;
+   delete p;
+   return true;}
+ //从第二个结点起查找被删除的元素,
+ //若查找成功则删除它并返回真
+  LNode* q=p->next;
+  while(q!=NULL)
+   {if(q->data==item) {
+     p->next=q->next;
+     delete q;
+     return true;}
+    else { p=q;q=q->next;}}
+ //没有可删除的元素,则返回假
+ return false;
+}
+//显示输出散列表中的所有元素
+template<class T>
+void LHList<T>::PrintHashList()
+{LNode* p;int n=0;
+ for(int i=0; i<m; i++) {
+   p=HT[i];n++;
+   cout<<setw(2)<<i<<':';
+   while(p) {n++;
+    cout<<setw(3)<<p->data;
+    if(n%5==0) cout<<endl;
+      p=p->next;}}}
+//LHashLM.cpp
+#include<iostream.h>
+#include<stdlib.h>
+#include<fstream.h>
+#include<iomanip.h>
+#include "LHashL.cpp"
+//散列表类的相关操作的测试
+void main()
+{ cout<<"LHashLM.cpp运行结果:\n";
+  //定义数组b并初始化
+  ElemType a[16]={12,18,15,32,6,23,21,48,36,57,
+   45,29,25,38,14,9},d;
+  //元素个数
+  int m=10,b,*p=NULL;
+  //定义对象
+  LHList<ElemType> B(m);
+  //利用键盘输入操作主文件的插入、删除和查找
+  while(1) {
+    cout<<endl<<"功能号表:"<<endl;
+    cout<<"1---创建散列表"<<endl;
+    cout<<"2---向主文件插入元素"<<endl;
+    cout<<"3---从主文件中删除元素"<<endl;
+    cout<<"4---从主文件中查找元素"<<endl;
+    cout<<"5---打印主文件"<<endl;
+    cout<<"6---结束运行"<<endl;
+    char ch;
+    cout<<"请输入你的选择(1-5): ";
+      cin>>ch;
+    switch (ch)
+     {case '1':cout<<"创建散列表"<<endl;
+               B.CreateHashTable(a,m);break;
+      case '2':cout<<"输入待插入元素d:";
+	        cin>>d;B.Insert(d); break;
+      case '3':cout<<"输入待删除元素b:";cin>>b;
+            if(B.Delete(b)) cout<<"删除成功!\n";
+	    else cout<<"删除不成功!\n";break;
+      case '4':cout<<"输入待查找元素b:";cin>>b;
+            p=B.Search(b);
+	    if(p==NULL) cout<<"查找不成功!\n";
+	    else cout<<"查找成功!\n";break;
+      case '5':B.PrintHashList();break;
+      case '6':return;
+      default:cout<<"输入选择错误,请重输!"<<endl;
+}}}
+LHashLM.cpp运行结果:
+功能号表:
+1---创建散列表
+2---向主文件插入元素
+3---从主文件中删除元素
+4---从主文件中查找元素
+5---打印主文件
+6---结束运行
+请输入你的选择(1-5): 1
+创建散列表
+功能号表:
+1---创建散列表
+2---向主文件插入元素
+3---从主文件中删除元素
+4---从主文件中查找元素
+5---打印主文件
+6---结束运行
+请输入你的选择(1-5):2
+输入待插入元素d:33
+功能号表:
+1---创建散列表
+2---向主文件插入元素
+3---从主文件中删除元素
+4---从主文件中查找元素
+5---打印主文件
+6---结束运行
+请输入你的选择(1-5):4
+输入待查找元素b:33
+查找成功!
+功能号表:
+1---创建散列表
+2---向主文件插入元素
+3---从主文件中删除元素
+4---从主文件中查找元素
+5---打印主文件
+6---结束运行
+请输入你的选择(1-5):5
+ 0: 1: 21 2: 32
+ 12 3: 33 23 4: 5: 15 6: 36  6
+ 7: 57 8: 48 18
+ 9:
+功能号表:
+1---创建散列表
+2---向主文件插入元素
+3---从主文件中删除元素
+4---从主文件中查找元素
+5---打印主文件
+6---结束运行
+请输入你的选择(1-5): 3
+输入待删除元素b:33
+删除成功!
+功能号表:
+1---创建散列表
+2---向主文件插入元素
+3---从主文件中删除元素
+4---从主文件中查找元素
+5---打印主文件
+6---结束运行
+请输入你的选择(1-5):5
+ 0: 1: 21 2: 32
+ 12 3: 23 4: 5: 15 6: 36  6 7: 57 8: 48 18 9:
+功能号表:
+1---创建散列表
+2---向主文件插入元素
+3---从主文件中删除元素
+4---从主文件中查找元素
+5---打印主文件
+6---结束运行
+请输入你的选择(1-5):6
